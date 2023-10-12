@@ -33,7 +33,7 @@ function PostsList() {
       {posts.map((post) => (
         <div key={post.id} className='post-container'>
           <h2>
-            <Link to={`/post/${post.id}`} className='post-title'>
+            <Link to={`/posts/${post.id}`} className='post-title'>
               {post.title}
             </Link>
           </h2>
