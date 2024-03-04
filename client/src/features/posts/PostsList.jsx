@@ -1,5 +1,5 @@
 // PostsList.jsx
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { API_URL } from "../../constants";
 import { Link } from "react-router-dom";
 
@@ -28,6 +28,23 @@ function PostsList() {
     }
     loadPosts();
   }, []);
+
+  const deletePost = async (id) => {
+    // DELETE request to: http://localhost:3000/ap/vi/posts/:id
+    try {
+      const response = await fetch(`${API_URL}/${id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        setPosts(posts.filter((post) => post.id !== id));
+      }else {
+        throw response;
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
   return (
     <div>
       {posts.map((post) => (
@@ -37,7 +54,9 @@ function PostsList() {
               {post.title}
             </Link>
           </h2>
-          <p>{post.body}</p>
+         <div className="post-links">
+          <button onClick={() => deletePost(post.id)} type="button">Delete</button>
+         </div>
         </div>
       ))}
     </div>
