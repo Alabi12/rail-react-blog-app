@@ -1,36 +1,36 @@
-import React, { useEffect, useState } from "react";
+/* eslint-disable no-unused-vars */
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { API_URL } from "../../constants";
 
 function PostEditForm() {
   const [post, setPost] = useState(null);
   const { id } = useParams();
-  const [, setLoading] = useState(true);
-  const [, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // fetch the current post by id
-    const fetchCurrentPost = async () => {
+    const fetchPost = async () => {
       try {
         const response = await fetch(`${API_URL}/${id}`);
         if (response.ok) {
-          const json = await response.json();
-          setPost(json);
+          const postData = await response.json();
+          setPost(postData);
         } else {
           throw response;
         }
       } catch (e) {
-        console.log("An error occured:", e);
+        console.error("An error occurred:", e);
         setError(e);
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     };
-    fetchCurrentPost();
+    fetchPost();
   }, [id]);
 
-  const handleSubmit = async (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
     try {
       const response = await fetch(`${API_URL}/${id}`, {
@@ -44,23 +44,23 @@ function PostEditForm() {
         }),
       });
       if (response.ok) {
-        const json = await response.json();
-        console.log("Success", json);
+        const updatedPost = await response.json();
+        console.log("Success", updatedPost);
         navigate(`/posts/${id}`);
       } else {
         throw response;
       }
-    } catch (error) {
-      console.log("An error occured", e);
+    } catch (e) {
+      console.error("An error occurred", e);
     }
   };
-  if (!post) return <h2>Loading...</h2>;
 
-  
+  if (isLoading) return <h2>Loading...</h2>;
+
   return (
     <div>
-      <div>Edit Post</div>
-      <form onSubmit={handleSubmit}>
+      <h2>Edit Post</h2>
+      <form onSubmit={handleSave}>
         <div>
           <label htmlFor='post-title'>Title</label>
           <input
@@ -75,7 +75,7 @@ function PostEditForm() {
           <textarea
             id='post-body'
             value={post.body}
-            onChange={(e) => setPost({ ...post, title: e.target.value })}
+            onChange={(e) => setPost({ ...post, body: e.target.value })}
           />
         </div>
         <div>
