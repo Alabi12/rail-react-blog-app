@@ -49,6 +49,9 @@ const deletePost = async () => {
           <p>{post.body}</p>
         </div>
       )}
+      
+      <Link to={`/posts/${post.id}/edit?`}>Edit</Link>
+      {" | "}
       <Link to='/'>Back to Posts</Link>
       {" | "}
       <button onClick={deletePost} type="button">Delete</button>
