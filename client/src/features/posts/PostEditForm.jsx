@@ -1,66 +1,51 @@
 /* eslint-disable no-unused-vars */
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { API_URL } from "../../constants";
+import { fetchPost, updatePost } from "../../services/postService";
 
 function PostEditForm() {
   const [post, setPost] = useState(null);
   const { id } = useParams();
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [, setIsLoading] = useState(true);
+  const [, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchPost = async () => {
+    const fetchCurrentPost = async () => {
       try {
-        const response = await fetch(`${API_URL}/${id}`);
-        if (response.ok) {
-          const postData = await response.json();
-          setPost(postData);
-        } else {
-          throw response;
-        }
-      } catch (e) {
-        console.error("An error occurred:", e);
-        setError(e);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchPost();
+        const json = await fetchPost(id);
+          setPost(json);
+    } catch (e) {
+      setError(e)
+    } finally {
+      setIsLoading(false)
+    }
+  };
+    fetchCurrentPost();
   }, [id]);
 
-  const handleSave = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    const updatedPost = {
+      title: post.title,
+      body: post.body,
+    };
+
     try {
-      const response = await fetch(`${API_URL}/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          title: post.title,
-          body: post.body,
-        }),
-      });
-      if (response.ok) {
-        const updatedPost = await response.json();
-        console.log("Success", updatedPost);
-        navigate(`/posts/${id}`);
-      } else {
-        throw response;
-      }
-    } catch (e) {
-      console.error("An error occurred", e);
+      const response = await updatePost(id, updatedPost);
+      navigate(`/posts/${response.id}`);
+    } catch (error) {
+      console.log("Failed to update post: ", error)
     }
   };
 
-  if (isLoading) return <h2>Loading...</h2>;
+  if (!post) return <h2>Loading...</h2>;
 
   return (
     <div>
       <h2>Edit Post</h2>
-      <form onSubmit={handleSave}>
+      <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor='post-title'>Title</label>
           <input
