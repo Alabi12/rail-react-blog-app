@@ -1,6 +1,6 @@
 // PostsList.jsx
 import { useState, useEffect } from "react";
-import { API_URL } from "../../constants";
+import { fetchAllPosts, deletePost as deletePostServices } from '../../services/postService';
 import { Link } from "react-router-dom";
 
 function PostsList() {
@@ -12,39 +12,26 @@ function PostsList() {
   useEffect(() => {
     async function loadPosts() {
       try {
-        const response = await fetch(API_URL);
-        if (response.ok) {
-          const json = await response.json();
-          setPosts(json);
-        } else {
-          throw response;
-        }
-      } catch (e) {
-        setError("An error occured. Awkward...");
-        console.log("An error occured:", e);
-      } finally {
+        const data = await fetchAllPosts();
+        setPosts(data);
+        setLoading(false);
+      } catch (error) {
+        setError(error);
         setLoading(false);
       }
     }
     loadPosts();
   }, []);
 
-  const deletePost = async (id) => {
-    // DELETE request to: http://localhost:3000/ap/vi/posts/:id
+  const deletePostHandler = async (id) => {
     try {
-      const response = await fetch(`${API_URL}/${id}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        setPosts(posts.filter((post) => post.id !== id));
-      }else {
-        throw response;
-      }
-    } catch (error) {
-      console.log(error)
+      await deletePostServices(id);
+      setPosts(posts.filter((post) => post.id !== id));
+    } catch (e) {
+      console.error("Failed to delete the post: ", e);
     }
   }
+  
   return (
     <div>
       {posts.map((post) => (
@@ -57,7 +44,7 @@ function PostsList() {
          <div className="post-links">
          <Link to={`/posts/${post.id}/edit?}`}>Edit</Link>
          {" | "}
-          <button onClick={() => deletePost(post.id)} type="button">Delete</button>
+          <button onClick={() => deletePostHandler(post.id)} type="button">Delete</button>
          </div>
         </div>
       ))}
